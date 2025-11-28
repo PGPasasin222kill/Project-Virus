@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Project_Virus
 {
@@ -156,45 +156,6 @@ namespace Project_Virus
         {
             selectedNode = null;
         }
-        private void SaveGraph()
-        {
-            using (StreamWriter sw = new StreamWriter("graf.txt"))
-            {
-                foreach (Node node in nodes)
-                {
-                    sw.WriteLine($"{node.Name}:{node.X},{node.Y}");
-                }
-            }
-        }
-
-        private void LoadGraph()
-        {
-            if (!File.Exists("graf.txt"))
-                return;
-
-            var lines = File.ReadAllLines("graf.txt");
-
-            foreach (string line in lines)
-            {
-                var parts = line.Split(':');
-                string name = parts[0];
-
-                var pos = parts[1].Split(',');
-                int x = int.Parse(pos[0]);
-                int y = int.Parse(pos[1]);
-
-                // găsește nodul cu acest nume
-                var node = nodes.Find(n => n.Name == name);
-                if (node != null)
-                {
-                    node.X = x;
-                    node.Y = y;
-                }
-            }
-
-            this.Invalidate(); // redesenează nodurile
-        }
-
     }
 
     // Clase auxiliare
