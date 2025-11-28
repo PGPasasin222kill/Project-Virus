@@ -1,12 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Project_Virus
 {
+
     public partial class Form2 : Form
     {
+        // Structură pentru virusuri
+        struct NumarStruct
+        {
+            public string x; // Numele virusului
+            public int y;    // Puterea virusului
+        }
+
+        // Vector de populație
+        int[] populatie = new int[] { 2000000, 4000000, 300000, 40000000 };
+        // Vector de structuri pentru virusuri
+        NumarStruct[] virus_pow = new NumarStruct[5];
+
         List<Node> nodes = new List<Node>();
         List<Edge> edges = new List<Edge>();
 
@@ -23,6 +37,13 @@ namespace Project_Virus
             this.UpdateStyles();
 
             InitializeComponent();
+
+            // Inițializare virus_pow
+            virus_pow[0] = new NumarStruct { x = "COVID", y = 1000 };
+            virus_pow[1] = new NumarStruct { x = "Ebola", y = 3000 };
+            virus_pow[2] = new NumarStruct { x = "H1N1", y = 1500 };
+            virus_pow[3] = new NumarStruct { x = "Rubeola", y = 2000 };
+            virus_pow[4] = new NumarStruct { x = "Ciuma Neagra", y = 10000 };
             this.Load += Form2_Load;
 
             // Conectează Paint și evenimente mouse
@@ -35,15 +56,28 @@ namespace Project_Virus
         private void Form2_Load(object sender, EventArgs e)
         {
             // Noduri
-            nodes.Add(new Node(400, 300, "Romania"));
-            nodes.Add(new Node(300, 50, "Bulgaria"));
-            nodes.Add(new Node(200, 150, "Serbia"));
-            nodes.Add(new Node(250, 400, "Ungaria"));
+            nodes.Add(new Node(400, 300, "Romania"));//0
+            nodes.Add(new Node(300, 50, "Bulgaria"));//1
+            nodes.Add(new Node(200, 150, "Serbia"));//2
+            nodes.Add(new Node(250, 400, "Ungaria"));//3
+            nodes.Add(new Node(400, 400, "Ucraina"));//4
+            nodes.Add(new Node(200, 400, "Moldova"));//5
+            nodes.Add(new Node(500, 400, "Grecia"));//6
+            nodes.Add(new Node(450, 400, "Slovacia"));//7
+            nodes.Add(new Node(200, 450, "Slovenia"));//8
+            nodes.Add(new Node(250, 450, "Polonia"));//9
 
             // Muchii
-            edges.Add(new Edge(nodes[0], nodes[1]));
+            edges.Add(new Edge(nodes[1], nodes[0]));
             edges.Add(new Edge(nodes[2], nodes[0]));
             edges.Add(new Edge(nodes[3], nodes[0]));
+            edges.Add(new Edge(nodes[4], nodes[0]));
+            edges.Add(new Edge(nodes[5], nodes[0]));
+            edges.Add(new Edge(nodes[6], nodes[1]));
+            edges.Add(new Edge(nodes[7], nodes[3]));
+            edges.Add(new Edge(nodes[8], nodes[3]));
+            edges.Add(new Edge(nodes[9], nodes[7]));
+            LoadGraph();
         }
 
         private void Form2_Paint(object sender, PaintEventArgs e)
@@ -108,10 +142,59 @@ namespace Project_Virus
             this.Hide();
         }
 
+        private void Form2_Load_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            SaveGraph();
+        }
+
         private void Form2_MouseUp(object sender, MouseEventArgs e)
         {
             selectedNode = null;
         }
+        private void SaveGraph()
+        {
+            using (StreamWriter sw = new StreamWriter("graf.txt"))
+            {
+                foreach (Node node in nodes)
+                {
+                    sw.WriteLine($"{node.Name}:{node.X},{node.Y}");
+                }
+            }
+        }
+
+        private void LoadGraph()
+        {
+            if (!File.Exists("graf.txt"))
+                return;
+
+            var lines = File.ReadAllLines("graf.txt");
+
+            foreach (string line in lines)
+            {
+                var parts = line.Split(':');
+                string name = parts[0];
+
+                var pos = parts[1].Split(',');
+                int x = int.Parse(pos[0]);
+                int y = int.Parse(pos[1]);
+
+                // găsește nodul cu acest nume
+                var node = nodes.Find(n => n.Name == name);
+                if (node != null)
+                {
+                    node.X = x;
+                    node.Y = y;
+                }
+            }
+
+            this.Invalidate(); // redesenează nodurile
+        }
+
     }
 
     // Clase auxiliare
