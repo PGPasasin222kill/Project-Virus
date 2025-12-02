@@ -33,10 +33,9 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(33, 38);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Location = new System.Drawing.Point(569, 12);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(229, 91);
+            this.button1.Size = new System.Drawing.Size(97, 34);
             this.button1.TabIndex = 0;
             this.button1.Text = "Inapoi";
             this.button1.UseVisualStyleBackColor = true;
@@ -44,16 +43,15 @@
             // 
             // Form2
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(904, 649);
+            this.ClientSize = new System.Drawing.Size(678, 527);
             this.Controls.Add(this.button1);
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form2";
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load_1);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

@@ -41,5 +41,10 @@ namespace Project_Virus
             form1.Show();
             this.Hide(); ;
         }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
