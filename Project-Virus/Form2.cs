@@ -148,11 +148,6 @@ namespace Project_Virus
 
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            SaveGraph();
-        }
-
         private void Form2_MouseUp(object sender, MouseEventArgs e)
         {
             selectedNode = null;
@@ -167,6 +162,12 @@ namespace Project_Virus
                 }
             }
         }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            SaveGraph();
+        }
+
         private void LoadGraph()
         {
             if (!File.Exists("graf.txt"))
