@@ -62,24 +62,23 @@ namespace Project_Virus
         private void Form2_Load(object sender, EventArgs e)
         {
             // Noduri
-            nodes.Add(new Node(1000, 300, "Romania"));//0
-            nodes.Add(new Node(300, 50, "Bulgaria"));//1
-            nodes.Add(new Node(200, 150, "Serbia"));//2
-            nodes.Add(new Node(250, 400, "Ungaria"));//3
-            nodes.Add(new Node(400, 400, "Ucraina"));//4
-            nodes.Add(new Node(200, 400, "Moldova"));//5
-            nodes.Add(new Node(500, 400, "Grecia"));//6
-            nodes.Add(new Node(450, 400, "Slovacia"));//7
-            nodes.Add(new Node(200, 450, "Slovenia"));//8
-            nodes.Add(new Node(250, 450, "Polonia"));//9
-            nodes.Add(new Node(250, 450, "Germania"));//10
-            nodes.Add(new Node(250, 450, "Cehia"));//11
-            nodes.Add(new Node(250, 450, "Austria"));//12
-            nodes.Add(new Node(250, 450, "Croatia"));//13
-            nodes.Add(new Node(250, 450, "Elvetia"));//14
-            nodes.Add(new Node(250, 450, "Italia"));//15
-            nodes.Add(new Node(250, 450, "Bosnia"));//16
-
+            nodes.Add(new Node(564, 507, "Romania"));//0
+            nodes.Add(new Node(558, 644, "Bulgaria"));//1
+            nodes.Add(new Node(436, 571, "Serbia"));//2
+            nodes.Add(new Node(396, 463, "Ungaria"));//3
+            nodes.Add(new Node(643, 302, "Ucraina"));//4
+            nodes.Add(new Node(649, 417, "Moldova"));//5
+            nodes.Add(new Node(468, 759, "Grecia"));//6
+            nodes.Add(new Node(381, 375, "Slovacia"));//7
+            nodes.Add(new Node(200, 450, "Slovenia", 15));//8
+            nodes.Add(new Node(393, 251, "Polonia"));//9
+            nodes.Add(new Node(176, 271, "Germania"));//10
+            nodes.Add(new Node(247, 436, "Cehia"));//11
+            nodes.Add(new Node(276, 322, "Austria"));//12
+            nodes.Add(new Node(302, 498, "Croatia", 15));//13
+            nodes.Add(new Node(61, 433, "Elvetia", 15));//14
+            nodes.Add(new Node(155, 609, "Italia"));//15
+            nodes.Add(new Node(338, 575, "Bosnia"));//16
 
             // Muchii
             edges.Add(new Edge(nodes[1], nodes[0]));
@@ -194,6 +193,7 @@ namespace Project_Virus
             SaveGraph();
         }
 
+        private int nodeRadius = 15;
         private void PictureBox1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
@@ -203,18 +203,17 @@ namespace Project_Virus
             Brush nodeBrush = Brushes.LightGreen;
             Font font = new Font("Arial", 10, FontStyle.Bold);
 
-            // Desenează muchiile
+            // Muchii
             foreach (Edge edge in edges)
             {
-                g.DrawLine(edgePen,
-                           edge.From.X, edge.From.Y,
-                           edge.To.X, edge.To.Y);
+                g.DrawLine(edgePen, edge.From.X, edge.From.Y, edge.To.X, edge.To.Y);
             }
 
-            // Desenează nodurile
-            int radius = 20;
+            // Noduri
             foreach (Node node in nodes)
             {
+                int radius = node.Radius;
+
                 g.FillEllipse(nodeBrush, node.X - radius, node.Y - radius, radius * 2, radius * 2);
                 g.DrawEllipse(Pens.Black, node.X - radius, node.Y - radius, radius * 2, radius * 2);
 
@@ -224,6 +223,7 @@ namespace Project_Virus
 
                 g.DrawString(node.Name, font, Brushes.Black, textX, textY);
             }
+
         }
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -284,6 +284,49 @@ namespace Project_Virus
 
             this.Invalidate(); // redesenează nodurile
         }
+        double t;
+        private Dictionary<string, double> procentCurentDict = new Dictionary<string, double>();
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string taraSelectata = comboBox1.SelectedItem.ToString();
+            int indexTara = nodes.FindIndex(n => n.Name == taraSelectata);
+
+            if (indexTara != -1)
+            {
+                if (!double.TryParse(textBoxT.Text, out double tNou) || tNou <= 0)
+                {
+                    MessageBox.Show("Scrie un număr valid pentru t!");
+                    return;
+                }
+                t = tNou;
+
+                int totalPopulatie = populatie[indexTara];
+
+                // coeficientul virusului (puteți regla)
+                double k = virus_pow[indexTara].y / 50000.0;
+
+                // model exponențial realist
+                double infectati = totalPopulatie * (1 - Math.Exp(-k * t));
+
+                // procent
+                double procentNou = (infectati / totalPopulatie) * 100;
+
+                if (procentNou > 100)
+                    procentNou = 100;
+
+                procentCurentDict[taraSelectata] = procentNou;
+
+                textBoxProcent.Text = $"{procentNou:F2}%";
+                textBoxT.Text = t.ToString();
+            }
+        }
+
+        private void textBoxProcent_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
         private void SaveGraph()
         {
             using (StreamWriter sw = new StreamWriter("graf.txt"))
@@ -300,20 +343,23 @@ namespace Project_Virus
 
 // Clase auxiliare
 public class Node
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+    public string Name { get; set; }
+    public int Radius { get; set; }
+
+    public Node(int x, int y, string name, int radius = 20)
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public string Name { get; set; }
-
-        public Node(int x, int y, string name)
-        {
-            X = x;
-            Y = y;
-            Name = name;
-        }
+        X = x;
+        Y = y;
+        Name = name;
+        Radius = radius;  // Setare corectă
     }
+}
 
-    public class Edge
+
+public class Edge
     {
         public Node From { get; set; }
         public Node To { get; set; }
