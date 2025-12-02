@@ -10,6 +10,7 @@ namespace Project_Virus
 
     public partial class Form2 : Form
     {
+        long[] populatie = new long[] { 2000000, 4000000, 3000000, 40000000,2000000,15000000,10000000,6000000,3000000,40000000,85000000,11000000,10000000,4000000,9000000,60000000,3000000 };
         // Structură pentru virusuri
         struct NumarStruct
         {
@@ -18,7 +19,7 @@ namespace Project_Virus
         }
 
         // Vector de populație
-        int[] populatie = new int[] { 2000000, 4000000, 300000, 40000000 };
+        
         // Vector de structuri pentru virusuri
         NumarStruct[] virus_pow = new NumarStruct[5];
 
@@ -290,7 +291,7 @@ namespace Project_Virus
         private void button3_Click(object sender, EventArgs e)
         {
             string taraSelectata = comboBox1.SelectedItem.ToString();
-            int indexTara = nodes.FindIndex(n => n.Name == taraSelectata);
+            long indexTara = nodes.FindIndex(n => n.Name == taraSelectata);
 
             if (indexTara != -1)
             {
@@ -301,7 +302,7 @@ namespace Project_Virus
                 }
                 t = tNou;
 
-                int totalPopulatie = populatie[indexTara];
+                long totalPopulatie = populatie[indexTara];
 
                 // coeficientul virusului (puteți regla)
                 double k = virus_pow[indexTara].y / 50000.0;

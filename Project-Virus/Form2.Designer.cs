@@ -100,7 +100,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(101, 21);
             this.comboBox1.TabIndex = 6;
-            this.comboBox1.Items.AddRange(new string[] { "Romania", "Bulgaria", "Serbia", "Ungaria" });
+            this.comboBox1.Items.AddRange(new string[] { "Romania", "Bulgaria", "Serbia", "Ungaria", "Ucraina", "Moldova", "Grecia", "Slovacia", "Slovenia", "Polonia", "Germania", "Cehia", "Austria", "Croatia", "Elvetia", "Italia","Bosnia" });
             this.comboBox1.SelectedIndex = 0; // selectăm prima țară implicit
             // 
             // Form2
