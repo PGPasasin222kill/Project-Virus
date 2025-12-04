@@ -36,6 +36,7 @@
             this.textBoxT = new System.Windows.Forms.TextBox();
             this.textBoxProcent = new System.Windows.Forms.TextBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.comboBoxVirus = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -80,14 +81,14 @@
             // 
             // textBoxT
             // 
-            this.textBoxT.Location = new System.Drawing.Point(800, 179);
+            this.textBoxT.Location = new System.Drawing.Point(799, 250);
             this.textBoxT.Name = "textBoxT";
             this.textBoxT.Size = new System.Drawing.Size(100, 20);
             this.textBoxT.TabIndex = 4;
             // 
             // textBoxProcent
             // 
-            this.textBoxProcent.Location = new System.Drawing.Point(801, 205);
+            this.textBoxProcent.Location = new System.Drawing.Point(799, 344);
             this.textBoxProcent.Name = "textBoxProcent";
             this.textBoxProcent.Size = new System.Drawing.Size(100, 20);
             this.textBoxProcent.TabIndex = 5;
@@ -96,18 +97,26 @@
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(800, 231);
+           
+            this.comboBox1.Location = new System.Drawing.Point(799, 178);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(101, 21);
             this.comboBox1.TabIndex = 6;
-            this.comboBox1.Items.AddRange(new string[] { "Romania", "Bulgaria", "Serbia", "Ungaria", "Ucraina", "Moldova", "Grecia", "Slovacia", "Slovenia", "Polonia", "Germania", "Cehia", "Austria", "Croatia", "Elvetia", "Italia","Bosnia" });
-            this.comboBox1.SelectedIndex = 0; // selectăm prima țară implicit
+            // 
+            // comboBoxVirus
+            // 
+            this.comboBoxVirus.FormattingEnabled = true;
+            this.comboBoxVirus.Location = new System.Drawing.Point(801, 205);
+            this.comboBoxVirus.Name = "comboBoxVirus";
+            this.comboBoxVirus.Size = new System.Drawing.Size(97, 21);
+            this.comboBoxVirus.TabIndex = 7;
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(941, 824);
+            this.Controls.Add(this.comboBoxVirus);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.textBoxProcent);
             this.Controls.Add(this.textBoxT);
@@ -134,5 +143,6 @@
         private System.Windows.Forms.TextBox textBoxT;
         private System.Windows.Forms.TextBox textBoxProcent;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox comboBoxVirus;
     }
 }

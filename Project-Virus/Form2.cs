@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -10,16 +11,36 @@ namespace Project_Virus
 
     public partial class Form2 : Form
     {
-        long[] populatie = new long[] { 2000000, 4000000, 3000000, 40000000,2000000,15000000,10000000,6000000,3000000,40000000,85000000,11000000,10000000,4000000,9000000,60000000,3000000 };
         // Structură pentru virusuri
         struct NumarStruct
         {
             public string x; // Numele virusului
             public int y;    // Puterea virusului
         }
-
+        struct TaraStruct
+        {
+            public string Nume;
+            public long Populatie;
+        }
+        TaraStruct[] populatie_tara = new TaraStruct[]
+{
+    new TaraStruct { Nume = "Romania", Populatie = 19000000 },
+    new TaraStruct { Nume = "Bulgaria", Populatie = 72432 },
+    new TaraStruct { Nume = "Serbia", Populatie = 6700000 },
+    new TaraStruct { Nume = "Ungaria", Populatie = 9700000 },
+    new TaraStruct { Nume = "Ucraina", Populatie = 41000000 },
+    new TaraStruct { Nume = "Moldova", Populatie = 2600000 },
+    new TaraStruct { Nume = "Grecia", Populatie = 10700000 },
+    new TaraStruct { Nume = "Germania", Populatie = 5500000 },
+    new TaraStruct { Nume = "Cehia", Populatie = 2100000 },
+    new TaraStruct { Nume = "Austria", Populatie = 38000000 },
+    new TaraStruct { Nume = "Croatia", Populatie = 2100000 },
+    new TaraStruct { Nume = "Elvetia", Populatie = 2100000 },
+    new TaraStruct { Nume = "Italia", Populatie = 2100000 },
+    new TaraStruct { Nume = "Bosnia", Populatie = 2100000 }
+};
         // Vector de populație
-        
+
         // Vector de structuri pentru virusuri
         NumarStruct[] virus_pow = new NumarStruct[5];
 
@@ -30,8 +51,11 @@ namespace Project_Virus
         private Node selectedNode = null;
         private int offsetX, offsetY;
 
+
         public Form2()
         {
+            
+
             // Activează double buffering pentru a elimina flicker
             this.SetStyle(ControlStyles.AllPaintingInWmPaint |
                           ControlStyles.UserPaint |
@@ -40,6 +64,7 @@ namespace Project_Virus
 
             InitializeComponent();
 
+
             // Inițializare virus_pow
             virus_pow[0] = new NumarStruct { x = "COVID", y = 1000 };
             virus_pow[1] = new NumarStruct { x = "Ebola", y = 3000 };
@@ -47,6 +72,15 @@ namespace Project_Virus
             virus_pow[3] = new NumarStruct { x = "Rubeola", y = 2000 };
             virus_pow[4] = new NumarStruct { x = "Ciuma Neagra", y = 10000 };
             this.Load += Form2_Load;
+            comboBox1.Items.AddRange(populatie_tara.Select(t => t.Nume).ToArray());
+            comboBoxVirus.Items.AddRange(new string[]
+        {
+            virus_pow[0].x,
+            virus_pow[1].x,
+            virus_pow[2].x,
+            virus_pow[3].x,
+            virus_pow[4].x
+        });
 
             // Conectează Paint și evenimente mouse
             this.Paint += Form2_Paint;
@@ -62,6 +96,7 @@ namespace Project_Virus
 
         private void Form2_Load(object sender, EventArgs e)
         {
+
             // Noduri
             nodes.Add(new Node(564, 507, "Romania"));//0
             nodes.Add(new Node(558, 644, "Bulgaria"));//1
@@ -80,6 +115,8 @@ namespace Project_Virus
             nodes.Add(new Node(61, 433, "Elvetia", 15));//14
             nodes.Add(new Node(155, 609, "Italia"));//15
             nodes.Add(new Node(338, 575, "Bosnia"));//16
+
+
 
             // Muchii
             edges.Add(new Edge(nodes[1], nodes[0]));
@@ -143,6 +180,32 @@ namespace Project_Virus
                 float textY = node.Y - radius - textSize.Height - 2;
                 g.DrawString(node.Name, font, Brushes.Black, textX, textY);
             }
+        }
+        private Color Lerp(Color a, Color b, double t)
+        {
+            int r = (int)(a.R + (b.R - a.R) * t);
+            int g = (int)(a.G + (b.G - a.G) * t);
+            int bC = (int)(a.B + (b.B - a.B) * t);
+            return Color.FromArgb(r, g, bC);
+        }
+
+        private Color GetInfectionColor(double infectie) // infectie între 0 și 1
+        {
+            infectie = Math.Max(0, Math.Min(1, infectie));
+            double t = Math.Pow(infectie, 2.2);
+
+            if (t <= 0.10)
+                return Lerp(Color.FromArgb(0, 180, 0), Color.FromArgb(120, 200, 0), t / 0.10);
+            if (t <= 0.30)
+                return Lerp(Color.FromArgb(120, 200, 0), Color.FromArgb(255, 255, 0), (t - 0.10) / 0.20);
+            if (t <= 0.60)
+                return Lerp(Color.FromArgb(255, 255, 0), Color.FromArgb(255, 128, 0), (t - 0.30) / 0.30);
+            if (t <= 0.95)
+                return Lerp(Color.FromArgb(255, 128, 0), Color.FromArgb(180, 0, 0), (t - 0.60) / 0.35);
+            if (t < 1.0)
+                return Lerp(Color.FromArgb(180, 0, 0), Color.Black, (t - 0.95) / 0.05);
+
+            return Color.Black;
         }
 
         private void Form2_MouseDown(object sender, MouseEventArgs e)
@@ -215,7 +278,18 @@ namespace Project_Virus
             {
                 int radius = node.Radius;
 
-                g.FillEllipse(nodeBrush, node.X - radius, node.Y - radius, radius * 2, radius * 2);
+                double procent = 0;
+                if (procentCurentDict.ContainsKey(node.Name))
+                    procent = procentCurentDict[node.Name];
+
+                double infectie = procent / 100.0;
+                Color nodeColor = GetInfectionColor(infectie);
+
+                using (Brush nodeBrush2 = new SolidBrush(nodeColor))
+                {
+                    g.FillEllipse(nodeBrush2, node.X - radius, node.Y - radius, radius * 2, radius * 2);
+                }
+
                 g.DrawEllipse(Pens.Black, node.X - radius, node.Y - radius, radius * 2, radius * 2);
 
                 SizeF textSize = g.MeasureString(node.Name, font);
@@ -287,40 +361,44 @@ namespace Project_Virus
         }
         double t;
         private Dictionary<string, double> procentCurentDict = new Dictionary<string, double>();
-
         private void button3_Click(object sender, EventArgs e)
         {
-            string taraSelectata = comboBox1.SelectedItem.ToString();
-            long indexTara = nodes.FindIndex(n => n.Name == taraSelectata);
-
-            if (indexTara != -1)
+            if (comboBox1.SelectedIndex == -1)
             {
-                if (!double.TryParse(textBoxT.Text, out double tNou) || tNou <= 0)
-                {
-                    MessageBox.Show("Scrie un număr valid pentru t!");
-                    return;
-                }
-                t = tNou;
-
-                long totalPopulatie = populatie[indexTara];
-
-                // coeficientul virusului (puteți regla)
-                double k = virus_pow[indexTara].y / 50000.0;
-
-                // model exponențial realist
-                double infectati = totalPopulatie * (1 - Math.Exp(-k * t));
-
-                // procent
-                double procentNou = (infectati / totalPopulatie) * 100;
-
-                if (procentNou > 100)
-                    procentNou = 100;
-
-                procentCurentDict[taraSelectata] = procentNou;
-
-                textBoxProcent.Text = $"{procentNou:F2}%";
-                textBoxT.Text = t.ToString();
+                MessageBox.Show("Alege o țară!");
+                return;
             }
+
+            if (comboBoxVirus.SelectedIndex == -1)
+            {
+                MessageBox.Show("Alege un virus!");
+                return;
+            }
+
+            int indexTara = comboBox1.SelectedIndex;
+            int indexVirus = comboBoxVirus.SelectedIndex;
+
+            if (!double.TryParse(textBoxT.Text, out double tNou) || tNou <= 0)
+            {
+                MessageBox.Show("Scrie un număr valid pentru t!");
+                return;
+            }
+
+            double t = tNou;
+
+            // Folosim structura populatie_tara
+            long totalPopulatie = populatie_tara[indexTara].Populatie;
+
+            double k = virus_pow[indexVirus].y / 50000.0;
+            double infectati = totalPopulatie * (1 - Math.Exp(-k * t));
+            double procent1 = (double)(infectati / totalPopulatie) * 100;
+
+            if (procent1 > 100) procent1 = 100;
+
+            textBoxProcent.Text = $"{procent1:F2}%";
+            procentCurentDict[populatie_tara[indexTara].Nume] = procent1;
+            pictureBox1.Invalidate();
+
         }
 
         private void textBoxProcent_TextChanged(object sender, EventArgs e)
