@@ -34,10 +34,10 @@ namespace Project_Virus
     new TaraStruct { Nume = "Germania", Populatie = 5500000 },
     new TaraStruct { Nume = "Cehia", Populatie = 2100000 },
     new TaraStruct { Nume = "Austria", Populatie = 38000000 },
-    new TaraStruct { Nume = "Croatia", Populatie = 2100000 },
-    new TaraStruct { Nume = "Elvetia", Populatie = 2100000 },
-    new TaraStruct { Nume = "Italia", Populatie = 2100000 },
-    new TaraStruct { Nume = "Bosnia", Populatie = 2100000 }
+    new TaraStruct { Nume = "Croatia", Populatie = 2500000 },
+    new TaraStruct { Nume = "Elvetia", Populatie = 2600000 },
+    new TaraStruct { Nume = "Italia", Populatie = 80000 },
+    new TaraStruct { Nume = "Bosnia", Populatie = 200000 }
 };
         // Vector de populație
 
@@ -103,18 +103,23 @@ namespace Project_Virus
             nodes.Add(new Node(436, 571, "Serbia"));//2
             nodes.Add(new Node(396, 463, "Ungaria"));//3
             nodes.Add(new Node(643, 302, "Ucraina"));//4
-            nodes.Add(new Node(649, 417, "Moldova"));//5
+            nodes.Add(new Node(649, 417, "Moldova",13));//5
             nodes.Add(new Node(468, 759, "Grecia"));//6
-            nodes.Add(new Node(381, 375, "Slovacia"));//7
-            nodes.Add(new Node(200, 450, "Slovenia", 15));//8
+            nodes.Add(new Node(381, 375, "Slovacia",15));//7
+            nodes.Add(new Node(200, 450, "Slovenia", 12));//8
             nodes.Add(new Node(393, 251, "Polonia"));//9
             nodes.Add(new Node(176, 271, "Germania"));//10
             nodes.Add(new Node(247, 436, "Cehia"));//11
             nodes.Add(new Node(276, 322, "Austria"));//12
-            nodes.Add(new Node(302, 498, "Croatia", 15));//13
+            nodes.Add(new Node(302, 498, "Croatia", 12));//13
             nodes.Add(new Node(61, 433, "Elvetia", 15));//14
             nodes.Add(new Node(155, 609, "Italia"));//15
             nodes.Add(new Node(338, 575, "Bosnia"));//16
+            nodes.Add(new Node(338, 575, "Belarus"));//17
+            nodes.Add(new Node(338, 575, "Rusia"));//18
+            nodes.Add(new Node(338, 575, "Turcia"));//19
+            nodes.Add(new Node(338, 575, "Lituania",15));//20
+            nodes.Add(new Node(338, 575, "Latvia",10));//21
 
 
 
@@ -151,6 +156,18 @@ namespace Project_Virus
             edges.Add(new Edge(nodes[16], nodes[13]));
             edges.Add(new Edge(nodes[3], nodes[13]));
             edges.Add(new Edge(nodes[8], nodes[15]));
+            edges.Add(new Edge(nodes[9], nodes[11]));
+            edges.Add(new Edge(nodes[18], nodes[4]));
+            edges.Add(new Edge(nodes[18], nodes[17]));
+            edges.Add(new Edge(nodes[17], nodes[4]));
+            edges.Add(new Edge(nodes[17], nodes[9]));
+            edges.Add(new Edge(nodes[21], nodes[20]));
+            edges.Add(new Edge(nodes[21], nodes[17]));
+            edges.Add(new Edge(nodes[21], nodes[18]));
+            edges.Add(new Edge(nodes[20], nodes[17]));
+            edges.Add(new Edge(nodes[20], nodes[9]));
+            edges.Add(new Edge(nodes[19], nodes[1]));
+            edges.Add(new Edge(nodes[19], nodes[6]));
             LoadGraph();
         }
 
@@ -171,7 +188,7 @@ namespace Project_Virus
             foreach (Node node in nodes)
             {
                 // Nodul
-                g.FillEllipse(nodeBrush, node.X - radius, node.Y - radius, radius * 2, radius * 2);
+                g.FillEllipse(nodeBrush, node.X - radius, node.Y - radius, radius * 3, radius * 2);
                 g.DrawEllipse(Pens.Black, node.X - radius, node.Y - radius, radius * 2, radius * 2);
 
                 // Numele nodului deasupra
