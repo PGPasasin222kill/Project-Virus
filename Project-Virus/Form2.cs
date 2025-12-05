@@ -111,17 +111,17 @@ namespace Project_Virus
             nodes.Add(new Node(200, 450, "Slovenia", 12));//8
             nodes.Add(new Node(393, 251, "Polonia"));//9
             nodes.Add(new Node(176, 271, "Germania"));//10
-            nodes.Add(new Node(247, 436, "Cehia"));//11
-            nodes.Add(new Node(276, 322, "Austria"));//12
+            nodes.Add(new Node(259, 420, "Cehia"));//11
+            nodes.Add(new Node(276, 333, "Austria"));//12
             nodes.Add(new Node(302, 498, "Croatia", 12));//13
             nodes.Add(new Node(61, 433, "Elvetia", 15));//14
             nodes.Add(new Node(155, 609, "Italia"));//15
-            nodes.Add(new Node(338, 575, "Bosnia"));//16
-            nodes.Add(new Node(338, 575, "Belarus"));//17
-            nodes.Add(new Node(338, 575, "Rusia"));//18
-            nodes.Add(new Node(338, 575, "Turcia"));//19
-            nodes.Add(new Node(338, 575, "Lituania",15));//20
-            nodes.Add(new Node(338, 575, "Latvia",10));//21
+            nodes.Add(new Node(340, 572, "Bosnia"));//16
+            nodes.Add(new Node(614, 153, "Belarus"));//17
+            nodes.Add(new Node(704, 64, "Rusia"));//18
+            nodes.Add(new Node(694, 760, "Turcia"));//19
+            nodes.Add(new Node(501, 93, "Lituania",15));//20
+            nodes.Add(new Node(539, 34, "Latvia",10));//21
 
 
 
@@ -429,6 +429,11 @@ namespace Project_Virus
         }
 
         private void textBoxProcent_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
         {
 
         }
