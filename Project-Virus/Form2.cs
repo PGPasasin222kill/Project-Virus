@@ -21,24 +21,26 @@ namespace Project_Virus
         {
             public string Nume;
             public long Populatie;
+            public double Rezistenta; // 0 = fără rezistență, 1 = foarte rezistentă
         }
+
         TaraStruct[] populatie_tara = new TaraStruct[]
-{
-    new TaraStruct { Nume = "Romania", Populatie = 19000000 },
-    new TaraStruct { Nume = "Bulgaria", Populatie = 72432 },
-    new TaraStruct { Nume = "Serbia", Populatie = 6700000 },
-    new TaraStruct { Nume = "Ungaria", Populatie = 9700000 },
-    new TaraStruct { Nume = "Ucraina", Populatie = 41000000 },
-    new TaraStruct { Nume = "Moldova", Populatie = 2600000 },
-    new TaraStruct { Nume = "Grecia", Populatie = 10700000 },
-    new TaraStruct { Nume = "Germania", Populatie = 5500000 },
-    new TaraStruct { Nume = "Cehia", Populatie = 2100000 },
-    new TaraStruct { Nume = "Austria", Populatie = 38000000 },
-    new TaraStruct { Nume = "Croatia", Populatie = 2500000 },
-    new TaraStruct { Nume = "Elvetia", Populatie = 2600000 },
-    new TaraStruct { Nume = "Italia", Populatie = 80000 },
-    new TaraStruct { Nume = "Bosnia", Populatie = 200000 }
-};
+        {
+    new TaraStruct { Nume = "Romania",  Populatie = 19000000, Rezistenta = 0.30 },
+    new TaraStruct { Nume = "Bulgaria", Populatie = 7000000,    Rezistenta = 0.20 },
+    new TaraStruct { Nume = "Serbia",   Populatie = 6700000,  Rezistenta = 0.25 },
+    new TaraStruct { Nume = "Ungaria",  Populatie = 9700000,  Rezistenta = 0.40 },
+    new TaraStruct { Nume = "Ucraina",  Populatie = 41000000, Rezistenta = 0.15 },
+    new TaraStruct { Nume = "Moldova",  Populatie = 2600000,  Rezistenta = 0.10 },
+    new TaraStruct { Nume = "Grecia",   Populatie = 10700000, Rezistenta = 0.35 },
+    new TaraStruct { Nume = "Germania", Populatie = 5500000,  Rezistenta = 0.50 },
+    new TaraStruct { Nume = "Cehia",    Populatie = 2100000,  Rezistenta = 0.45 },
+    new TaraStruct { Nume = "Austria",  Populatie = 38000000, Rezistenta = 0.60 },
+    new TaraStruct { Nume = "Croatia",  Populatie = 2500000,  Rezistenta = 0.30 },
+    new TaraStruct { Nume = "Elvetia",  Populatie = 2200000,  Rezistenta = 0.55 },
+    new TaraStruct { Nume = "Italia",   Populatie = 80000,    Rezistenta = 0.20 },
+    new TaraStruct { Nume = "Bosnia",   Populatie = 200000,   Rezistenta = 0.25 }
+        };
         // Vector de populație
 
         // Vector de structuri pentru virusuri
@@ -63,7 +65,7 @@ namespace Project_Virus
             this.UpdateStyles();
 
             InitializeComponent();
-
+            textBoxT.KeyDown += textBoxT_KeyDown;
 
             // Inițializare virus_pow
             virus_pow[0] = new NumarStruct { x = "COVID", y = 1000 };
@@ -376,6 +378,14 @@ namespace Project_Virus
 
             this.Invalidate(); // redesenează nodurile
         }
+        private void textBoxT_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                button3_Click(sender, e);
+                e.SuppressKeyPress = true;
+            }
+        }
         double t;
         private Dictionary<string, double> procentCurentDict = new Dictionary<string, double>();
         private void button3_Click(object sender, EventArgs e)
@@ -405,8 +415,8 @@ namespace Project_Virus
 
             // Folosim structura populatie_tara
             long totalPopulatie = populatie_tara[indexTara].Populatie;
-
-            double k = virus_pow[indexVirus].y / 50000.0;
+            double rez = populatie_tara[indexTara].Rezistenta;
+            double k = (virus_pow[indexVirus].y / 50000.0) * (1 - rez);
             double infectati = totalPopulatie * (1 - Math.Exp(-k * t));
             double procent1 = (double)(infectati / totalPopulatie) * 100;
 
