@@ -37,6 +37,8 @@
             this.textBoxProcent = new System.Windows.Forms.TextBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.comboBoxVirus = new System.Windows.Forms.ComboBox();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -71,9 +73,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(800, 111);
+            this.button3.Location = new System.Drawing.Point(801, 101);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(87, 62);
+            this.button3.Size = new System.Drawing.Size(96, 37);
             this.button3.TabIndex = 3;
             this.button3.Text = "button3";
             this.button3.UseVisualStyleBackColor = true;
@@ -81,40 +83,61 @@
             // 
             // textBoxT
             // 
-            this.textBoxT.Location = new System.Drawing.Point(799, 250);
+            this.textBoxT.Location = new System.Drawing.Point(800, 223);
             this.textBoxT.Name = "textBoxT";
-            this.textBoxT.Size = new System.Drawing.Size(100, 20);
+            this.textBoxT.Size = new System.Drawing.Size(102, 20);
             this.textBoxT.TabIndex = 4;
             // 
             // textBoxProcent
             // 
-            this.textBoxProcent.Location = new System.Drawing.Point(799, 344);
+            this.textBoxProcent.Location = new System.Drawing.Point(800, 273);
             this.textBoxProcent.Name = "textBoxProcent";
-            this.textBoxProcent.Size = new System.Drawing.Size(100, 20);
+            this.textBoxProcent.Size = new System.Drawing.Size(102, 20);
             this.textBoxProcent.TabIndex = 5;
-            this.textBoxProcent.TextChanged += new System.EventHandler(this.textBoxProcent_TextChanged);
             // 
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(799, 178);
+            this.comboBox1.Location = new System.Drawing.Point(801, 159);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(101, 21);
+            this.comboBox1.Size = new System.Drawing.Size(96, 21);
             this.comboBox1.TabIndex = 6;
             // 
             // comboBoxVirus
             // 
             this.comboBoxVirus.FormattingEnabled = true;
-            this.comboBoxVirus.Location = new System.Drawing.Point(801, 205);
+            this.comboBoxVirus.Location = new System.Drawing.Point(801, 186);
             this.comboBoxVirus.Name = "comboBoxVirus";
-            this.comboBoxVirus.Size = new System.Drawing.Size(97, 21);
+            this.comboBoxVirus.Size = new System.Drawing.Size(101, 21);
             this.comboBoxVirus.TabIndex = 7;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(800, 299);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 8;
+            this.button4.Text = "button4";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(854, 634);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(75, 23);
+            this.button5.TabIndex = 9;
+            this.button5.Text = "RESTART";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(941, 824);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.comboBoxVirus);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.textBoxProcent);
@@ -123,10 +146,10 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pictureBox1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form2";
             this.Text = "Form2";
-            this.Load += new System.EventHandler(this.Form2_Load_1);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -143,5 +166,7 @@
         private System.Windows.Forms.TextBox textBoxProcent;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ComboBox comboBoxVirus;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
     }
 }

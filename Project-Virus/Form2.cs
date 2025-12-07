@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Media;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Project_Virus
 {
-
     public partial class Form2 : Form
     {
         // Structură pentru virusuri
@@ -26,22 +29,29 @@ namespace Project_Virus
 
         TaraStruct[] populatie_tara = new TaraStruct[]
         {
-    new TaraStruct { Nume = "Romania",  Populatie = 19000000, Rezistenta = 0.30 },
-    new TaraStruct { Nume = "Bulgaria", Populatie = 7000000,    Rezistenta = 0.20 },
-    new TaraStruct { Nume = "Serbia",   Populatie = 6700000,  Rezistenta = 0.25 },
-    new TaraStruct { Nume = "Ungaria",  Populatie = 9700000,  Rezistenta = 0.40 },
-    new TaraStruct { Nume = "Ucraina",  Populatie = 41000000, Rezistenta = 0.15 },
-    new TaraStruct { Nume = "Moldova",  Populatie = 2600000,  Rezistenta = 0.10 },
-    new TaraStruct { Nume = "Grecia",   Populatie = 10700000, Rezistenta = 0.35 },
-    new TaraStruct { Nume = "Germania", Populatie = 5500000,  Rezistenta = 0.50 },
-    new TaraStruct { Nume = "Cehia",    Populatie = 2100000,  Rezistenta = 0.45 },
-    new TaraStruct { Nume = "Austria",  Populatie = 38000000, Rezistenta = 0.60 },
-    new TaraStruct { Nume = "Croatia",  Populatie = 2500000,  Rezistenta = 0.30 },
-    new TaraStruct { Nume = "Elvetia",  Populatie = 2200000,  Rezistenta = 0.55 },
-    new TaraStruct { Nume = "Italia",   Populatie = 80000,    Rezistenta = 0.20 },
-    new TaraStruct { Nume = "Bosnia",   Populatie = 200000,   Rezistenta = 0.25 }
+             new TaraStruct { Nume = "Romania",  Populatie = 19000000, Rezistenta = 0.30 },
+             new TaraStruct { Nume = "Bulgaria", Populatie = 7000000,    Rezistenta = 0.20 },
+             new TaraStruct { Nume = "Serbia",   Populatie = 6700000,  Rezistenta = 0.25 },
+             new TaraStruct { Nume = "Ungaria",  Populatie = 9700000,  Rezistenta = 0.40 },
+             new TaraStruct { Nume = "Ucraina",  Populatie = 41000000, Rezistenta = 0.15 },
+             new TaraStruct { Nume = "Moldova",  Populatie = 2600000,  Rezistenta = 0.10 },
+             new TaraStruct { Nume = "Grecia",   Populatie = 10700000, Rezistenta = 0.35 },
+             new TaraStruct { Nume = "Germania", Populatie = 5500000,  Rezistenta = 0.50 },
+             new TaraStruct { Nume = "Cehia",    Populatie = 2100000,  Rezistenta = 0.45 },
+             new TaraStruct { Nume = "Austria",  Populatie = 38000000, Rezistenta = 0.60 },
+             new TaraStruct { Nume = "Croatia",  Populatie = 2500000,  Rezistenta = 0.30 },
+             new TaraStruct { Nume = "Elvetia",  Populatie = 2200000,  Rezistenta = 0.55 },
+             new TaraStruct { Nume = "Italia",   Populatie = 80000,    Rezistenta = 0.20 },
+             new TaraStruct { Nume = "Bosnia",   Populatie = 200000,   Rezistenta = 0.25 },
+             new TaraStruct { Nume = "Belarus",   Populatie = 2200000,  Rezistenta = 0.55 },
+             new TaraStruct { Nume = "Polonia",   Populatie = 38000000, Rezistenta = 0.35 },
+             new TaraStruct { Nume = "Lituania",  Populatie = 2800000,  Rezistenta = 0.25 },
+             new TaraStruct { Nume = "Latvia",    Populatie = 1900000,  Rezistenta = 0.25 },
+             new TaraStruct { Nume = "Rusia",     Populatie = 80000000, Rezistenta = 0.20 },
+             new TaraStruct { Nume = "Turcia",    Populatie = 85000000, Rezistenta = 0.55 },
+             new TaraStruct { Nume = "Slovacia",     Populatie = 2450000, Rezistenta = 0.70 },
+             new TaraStruct { Nume = "Slovenia",    Populatie = 8500000, Rezistenta = 0.35 }
         };
-        // Vector de populație
 
         // Vector de structuri pentru virusuri
         NumarStruct[] virus_pow = new NumarStruct[5];
@@ -53,12 +63,23 @@ namespace Project_Virus
         private Node selectedNode = null;
         private int offsetX, offsetY;
 
+        // STRUCTURI PENTRU ADJACENȚĂ & MATRICE
+        Dictionary<string, List<(string neigh, int weight)>> adjacencyWeighted =
+            new Dictionary<string, List<(string neigh, int weight)>>();
 
+        int[,] MatrixAdj;
+        int[,] MatrixWeight;
+
+        // Infectare / vizual
+        List<string> infected = new List<string>();
+        int RiskThreshold = 5; // prag: muchiile cu Weight >= transmit
+
+        // procent curent (pentru partea ta deja existentă)
+        private Dictionary<string, double> procentCurentDict = new Dictionary<string, double>();
+        private SoundPlayer infectSound;
         public Form2()
         {
-            
-
-            // Activează double buffering pentru a elimina flicker
+            // activează double buffering
             this.SetStyle(ControlStyles.AllPaintingInWmPaint |
                           ControlStyles.UserPaint |
                           ControlStyles.OptimizedDoubleBuffer, true);
@@ -73,16 +94,17 @@ namespace Project_Virus
             virus_pow[2] = new NumarStruct { x = "H1N1", y = 1500 };
             virus_pow[3] = new NumarStruct { x = "Rubeola", y = 2000 };
             virus_pow[4] = new NumarStruct { x = "Ciuma Neagra", y = 10000 };
+
             this.Load += Form2_Load;
             comboBox1.Items.AddRange(populatie_tara.Select(t => t.Nume).ToArray());
             comboBoxVirus.Items.AddRange(new string[]
-        {
-            virus_pow[0].x,
-            virus_pow[1].x,
-            virus_pow[2].x,
-            virus_pow[3].x,
-            virus_pow[4].x
-        });
+            {
+                virus_pow[0].x,
+                virus_pow[1].x,
+                virus_pow[2].x,
+                virus_pow[3].x,
+                virus_pow[4].x
+            });
 
             // Conectează Paint și evenimente mouse
             this.Paint += Form2_Paint;
@@ -94,20 +116,20 @@ namespace Project_Virus
             pictureBox1.MouseDown += PictureBox1_MouseDown;
             pictureBox1.MouseMove += PictureBox1_MouseMove;
             pictureBox1.MouseUp += PictureBox1_MouseUp;
+            BuildAdjData();
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-
-            // Noduri
+            // Noduri (coordonatele pot fi ajustate)
             nodes.Add(new Node(564, 507, "Romania"));//0
             nodes.Add(new Node(558, 644, "Bulgaria"));//1
             nodes.Add(new Node(436, 571, "Serbia"));//2
             nodes.Add(new Node(396, 463, "Ungaria"));//3
             nodes.Add(new Node(643, 302, "Ucraina"));//4
-            nodes.Add(new Node(649, 417, "Moldova",13));//5
+            nodes.Add(new Node(649, 417, "Moldova", 13));//5
             nodes.Add(new Node(468, 759, "Grecia"));//6
-            nodes.Add(new Node(381, 375, "Slovacia",15));//7
+            nodes.Add(new Node(381, 375, "Slovacia", 15));//7
             nodes.Add(new Node(200, 450, "Slovenia", 12));//8
             nodes.Add(new Node(393, 251, "Polonia"));//9
             nodes.Add(new Node(176, 271, "Germania"));//10
@@ -120,77 +142,87 @@ namespace Project_Virus
             nodes.Add(new Node(614, 153, "Belarus"));//17
             nodes.Add(new Node(704, 64, "Rusia"));//18
             nodes.Add(new Node(694, 760, "Turcia"));//19
-            nodes.Add(new Node(501, 93, "Lituania",15));//20
-            nodes.Add(new Node(539, 34, "Latvia",10));//21
+            nodes.Add(new Node(501, 93, "Lituania", 15));//20
+            nodes.Add(new Node(539, 34, "Latvia", 10));//21
 
+            // Muchii (acum cu GREUTĂȚI). Ajustează greutățile după preferință:
+            // Format: edges.Add(new Edge(nodes[a], nodes[b], weight));
+            edges.Add(new Edge(nodes[1], nodes[0], 4));   // BG - RO (trafic moderat)
+            edges.Add(new Edge(nodes[2], nodes[0], 6));   // SRB - RO (risc)
+            edges.Add(new Edge(nodes[3], nodes[0], 7));   // HUN - RO (trafic intens)
+            edges.Add(new Edge(nodes[4], nodes[0], 3));   // UKR - RO (risc mic)
+            edges.Add(new Edge(nodes[5], nodes[0], 5));   // MD - RO
+            edges.Add(new Edge(nodes[6], nodes[1], 4));   // GRE - BG
+            edges.Add(new Edge(nodes[7], nodes[3], 2));
+            edges.Add(new Edge(nodes[8], nodes[3], 3));
+            edges.Add(new Edge(nodes[9], nodes[7], 5));
+            edges.Add(new Edge(nodes[9], nodes[4], 6));
+            edges.Add(new Edge(nodes[5], nodes[4], 2));
+            edges.Add(new Edge(nodes[7], nodes[4], 3));
+            edges.Add(new Edge(nodes[2], nodes[1], 6));
+            edges.Add(new Edge(nodes[3], nodes[2], 5));
+            edges.Add(new Edge(nodes[10], nodes[9], 8));
+            edges.Add(new Edge(nodes[10], nodes[11], 7));
+            edges.Add(new Edge(nodes[11], nodes[12], 6));
+            edges.Add(new Edge(nodes[11], nodes[7], 4));
+            edges.Add(new Edge(nodes[8], nodes[13], 3));
+            edges.Add(new Edge(nodes[2], nodes[13], 4));
+            edges.Add(new Edge(nodes[10], nodes[12], 5));
+            edges.Add(new Edge(nodes[12], nodes[3], 6));
+            edges.Add(new Edge(nodes[12], nodes[7], 4));
+            edges.Add(new Edge(nodes[12], nodes[8], 3));
+            edges.Add(new Edge(nodes[14], nodes[15], 7));
+            edges.Add(new Edge(nodes[14], nodes[10], 6));
+            edges.Add(new Edge(nodes[14], nodes[12], 5));
+            edges.Add(new Edge(nodes[14], nodes[15], 7));
+            edges.Add(new Edge(nodes[16], nodes[2], 3));
+            edges.Add(new Edge(nodes[16], nodes[13], 4));
+            edges.Add(new Edge(nodes[3], nodes[13], 4));
+            edges.Add(new Edge(nodes[8], nodes[15], 5));
+            edges.Add(new Edge(nodes[9], nodes[11], 6));
+            edges.Add(new Edge(nodes[18], nodes[4], 4));
+            edges.Add(new Edge(nodes[18], nodes[17], 5));
+            edges.Add(new Edge(nodes[17], nodes[4], 6));
+            edges.Add(new Edge(nodes[17], nodes[9], 4));
+            edges.Add(new Edge(nodes[21], nodes[20], 3));
+            edges.Add(new Edge(nodes[21], nodes[17], 3));
+            edges.Add(new Edge(nodes[21], nodes[18], 4));
+            edges.Add(new Edge(nodes[20], nodes[17], 3));
+            edges.Add(new Edge(nodes[20], nodes[9], 4));
+            edges.Add(new Edge(nodes[19], nodes[1], 2));
+            edges.Add(new Edge(nodes[19], nodes[6], 3));
 
+            // Construcție inițială a listei și matricei
+            BuildAdjData();
 
-            // Muchii
-            edges.Add(new Edge(nodes[1], nodes[0]));
-            edges.Add(new Edge(nodes[2], nodes[0]));
-            edges.Add(new Edge(nodes[3], nodes[0]));
-            edges.Add(new Edge(nodes[4], nodes[0]));
-            edges.Add(new Edge(nodes[5], nodes[0]));
-            edges.Add(new Edge(nodes[6], nodes[1]));
-            edges.Add(new Edge(nodes[7], nodes[3]));
-            edges.Add(new Edge(nodes[8], nodes[3]));
-            edges.Add(new Edge(nodes[9], nodes[7]));
-            edges.Add(new Edge(nodes[9], nodes[4]));
-            edges.Add(new Edge(nodes[5], nodes[4]));
-            edges.Add(new Edge(nodes[7], nodes[4]));
-            edges.Add(new Edge(nodes[2], nodes[1]));
-            edges.Add(new Edge(nodes[3], nodes[2]));
-            edges.Add(new Edge(nodes[10], nodes[9]));
-            edges.Add(new Edge(nodes[10], nodes[11]));
-            edges.Add(new Edge(nodes[11], nodes[12]));
-            edges.Add(new Edge(nodes[11], nodes[7]));
-            edges.Add(new Edge(nodes[8], nodes[13]));
-            edges.Add(new Edge(nodes[2], nodes[13]));
-            edges.Add(new Edge(nodes[10], nodes[12]));
-            edges.Add(new Edge(nodes[12], nodes[3]));
-            edges.Add(new Edge(nodes[12], nodes[7]));
-            edges.Add(new Edge(nodes[12], nodes[8]));
-            edges.Add(new Edge(nodes[14], nodes[15]));
-            edges.Add(new Edge(nodes[14], nodes[10]));
-            edges.Add(new Edge(nodes[14], nodes[12]));
-            edges.Add(new Edge(nodes[14], nodes[15]));
-            edges.Add(new Edge(nodes[16], nodes[2]));
-            edges.Add(new Edge(nodes[16], nodes[13]));
-            edges.Add(new Edge(nodes[3], nodes[13]));
-            edges.Add(new Edge(nodes[8], nodes[15]));
-            edges.Add(new Edge(nodes[9], nodes[11]));
-            edges.Add(new Edge(nodes[18], nodes[4]));
-            edges.Add(new Edge(nodes[18], nodes[17]));
-            edges.Add(new Edge(nodes[17], nodes[4]));
-            edges.Add(new Edge(nodes[17], nodes[9]));
-            edges.Add(new Edge(nodes[21], nodes[20]));
-            edges.Add(new Edge(nodes[21], nodes[17]));
-            edges.Add(new Edge(nodes[21], nodes[18]));
-            edges.Add(new Edge(nodes[20], nodes[17]));
-            edges.Add(new Edge(nodes[20], nodes[9]));
-            edges.Add(new Edge(nodes[19], nodes[1]));
-            edges.Add(new Edge(nodes[19], nodes[6]));
             LoadGraph();
         }
 
+        // ----- DESENARE FORM (păstrat, dar folosește node.Color) -----
         private void Form2_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             Pen edgePen = new Pen(Color.Black, 3);
-            Brush nodeBrush = Brushes.LightGreen;
-            Font font = new Font("Bold", 10);
+            Font font = new Font("Arial", 10, FontStyle.Bold);
 
             // Desenează muchiile
             foreach (Edge edge in edges)
             {
                 g.DrawLine(edgePen, edge.From.X, edge.From.Y, edge.To.X, edge.To.Y);
+                // afișare greutate la mijlocul muchiei
+                var mx = (edge.From.X + edge.To.X) / 2;
+                var my = (edge.From.Y + edge.To.Y) / 2;
+                g.DrawString(edge.Weight.ToString(), new Font("Arial", 8), Brushes.DarkBlue, mx, my);
             }
 
             int radius = 20;
             foreach (Node node in nodes)
             {
-                // Nodul
-                g.FillEllipse(nodeBrush, node.X - radius, node.Y - radius, radius * 3, radius * 2);
+                // Nodul - folosește culoarea nodului
+                using (Brush b = new SolidBrush(node.Color))
+                {
+                    g.FillEllipse(b, node.X - radius, node.Y - radius, radius * 2, radius * 2);
+                }
                 g.DrawEllipse(Pens.Black, node.X - radius, node.Y - radius, radius * 2, radius * 2);
 
                 // Numele nodului deasupra
@@ -200,6 +232,7 @@ namespace Project_Virus
                 g.DrawString(node.Name, font, Brushes.Black, textX, textY);
             }
         }
+
         private Color Lerp(Color a, Color b, double t)
         {
             int r = (int)(a.R + (b.R - a.R) * t);
@@ -227,6 +260,7 @@ namespace Project_Virus
             return Color.Black;
         }
 
+        // ----- MOUSE HANDLING pe form (permite mutare noduri) -----
         private void Form2_MouseDown(object sender, MouseEventArgs e)
         {
             int radius = 20;
@@ -254,6 +288,11 @@ namespace Project_Virus
             }
         }
 
+        private void Form2_MouseUp(object sender, MouseEventArgs e)
+        {
+            selectedNode = null;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
@@ -261,35 +300,27 @@ namespace Project_Virus
             this.Hide();
         }
 
-        private void Form2_Load_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form2_MouseUp(object sender, MouseEventArgs e)
-        {
-            selectedNode = null;
-        }
-
         private void button2_Click_1(object sender, EventArgs e)
         {
             SaveGraph();
         }
 
-        private int nodeRadius = 15;
+        // ----- PictureBox (folosit pentru vizualizare noduri colorate) -----
         private void PictureBox1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             Pen edgePen = new Pen(Color.Black, 1);
-            Brush nodeBrush = Brushes.LightGreen;
             Font font = new Font("Arial", 10, FontStyle.Bold);
 
             // Muchii
             foreach (Edge edge in edges)
             {
                 g.DrawLine(edgePen, edge.From.X, edge.From.Y, edge.To.X, edge.To.Y);
+                var mx = (edge.From.X + edge.To.X) / 2;
+                var my = (edge.From.Y + edge.To.Y) / 2;
+                g.DrawString(edge.Weight.ToString(), new Font("Arial", 8), Brushes.DarkBlue, mx, my);
             }
 
             // Noduri
@@ -297,14 +328,22 @@ namespace Project_Virus
             {
                 int radius = node.Radius;
 
+                // Dacă avem procent calculat pentru un node, colorăm pe baza lui:
                 double procent = 0;
                 if (procentCurentDict.ContainsKey(node.Name))
                     procent = procentCurentDict[node.Name];
 
                 double infectie = procent / 100.0;
-                Color nodeColor = GetInfectionColor(infectie);
+                Color nodeColorByPercent = GetInfectionColor(infectie);
 
-                using (Brush nodeBrush2 = new SolidBrush(nodeColor))
+                // Prioritate: nod.Color (infectat manual) -> colorarea bazată pe procent -> default
+                Color finalColor = node.Color;
+                if (finalColor == DefaultNodeColor) // dacă nu e setat infectat
+                {
+                    finalColor = nodeColorByPercent;
+                }
+
+                using (Brush nodeBrush2 = new SolidBrush(finalColor))
                 {
                     g.FillEllipse(nodeBrush2, node.X - radius, node.Y - radius, radius * 2, radius * 2);
                 }
@@ -317,8 +356,8 @@ namespace Project_Virus
 
                 g.DrawString(node.Name, font, Brushes.Black, textX, textY);
             }
-
         }
+
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             int radius = 20;
@@ -351,6 +390,8 @@ namespace Project_Virus
         {
             selectedNode = null;
         }
+
+        // ----- Load/Save poziții noduri în fisier -----
         private void LoadGraph()
         {
             if (!File.Exists("graf.txt"))
@@ -361,11 +402,13 @@ namespace Project_Virus
             foreach (string line in lines)
             {
                 var parts = line.Split(':');
+                if (parts.Length < 2) continue;
                 string name = parts[0];
 
                 var pos = parts[1].Split(',');
-                int x = int.Parse(pos[0]);
-                int y = int.Parse(pos[1]);
+                if (pos.Length < 2) continue;
+                if (!int.TryParse(pos[0], out int x)) continue;
+                if (!int.TryParse(pos[1], out int y)) continue;
 
                 // găsește nodul cu acest nume
                 var node = nodes.Find(n => n.Name == name);
@@ -378,6 +421,19 @@ namespace Project_Virus
 
             this.Invalidate(); // redesenează nodurile
         }
+
+        private void SaveGraph()
+        {
+            using (StreamWriter sw = new StreamWriter("graf.txt"))
+            {
+                foreach (Node node in nodes)
+                {
+                    sw.WriteLine($"{node.Name}:{node.X},{node.Y}");
+                }
+            }
+        }
+
+        // ----- TextBox Enter handler pentru t -----
         private void textBoxT_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -386,8 +442,8 @@ namespace Project_Virus
                 e.SuppressKeyPress = true;
             }
         }
-        double t;
-        private Dictionary<string, double> procentCurentDict = new Dictionary<string, double>();
+
+        // ----- Funcția originală de calcul procent (păstrată) -----
         private void button3_Click(object sender, EventArgs e)
         {
             if (comboBox1.SelectedIndex == -1)
@@ -425,59 +481,183 @@ namespace Project_Virus
             textBoxProcent.Text = $"{procent1:F2}%";
             procentCurentDict[populatie_tara[indexTara].Nume] = procent1;
             pictureBox1.Invalidate();
-
         }
 
-        private void textBoxProcent_TextChanged(object sender, EventArgs e)
+        private double ComputePercentForNode(string nodeName)
         {
+            // gasim index tara in populatie_tara după nume
+            int indexTara = Array.FindIndex(populatie_tara, p => p.Nume == nodeName);
+            if (indexTara < 0) return 0.0;
 
+            // virus selectat (folosim comboBoxVirus current; dacă nu e selectat, luăm index 0)
+            int indexVirus = comboBoxVirus.SelectedIndex >= 0 ? comboBoxVirus.SelectedIndex : 0;
+
+            // citim t (dacă nu e valid, folosim 1)
+            if (!double.TryParse(textBoxT.Text, out double t) || t <= 0) t = 1.0;
+
+            long totalPopulatie = populatie_tara[indexTara].Populatie;
+            double rez = populatie_tara[indexTara].Rezistenta;
+            double k = (virus_pow[indexVirus].y / 50000.0) * (1 - rez);
+            double infectati = totalPopulatie * (1 - Math.Exp(-k * t));
+            double procent1 = (double)(infectati / totalPopulatie) * 100.0;
+            if (procent1 > 100.0) procent1 = 100.0;
+            return procent1;
         }
 
-        private void trackBar1_Scroll(object sender, EventArgs e)
+        // ----- FUNCȚII NOI: Construire adj / matrice, afișare matrice ----- //
+        private void BuildAdjData()
         {
+            adjacencyWeighted.Clear();
 
-        }
+            foreach (var node in nodes)
+                adjacencyWeighted[node.Name] = new List<(string neigh, int weight)>();
 
-        private void SaveGraph()
-        {
-            using (StreamWriter sw = new StreamWriter("graf.txt"))
+            int n = nodes.Count;
+            MatrixAdj = new int[n, n];
+            MatrixWeight = new int[n, n];
+
+            foreach (var edge in edges)
             {
-                foreach (Node node in nodes)
+                // listă ponderată
+                adjacencyWeighted[edge.From.Name].Add((edge.To.Name, edge.Weight));
+                adjacencyWeighted[edge.To.Name].Add((edge.From.Name, edge.Weight)); // neorientat
+
+                // matrice
+                int i = nodes.IndexOf(edge.From);
+                int j = nodes.IndexOf(edge.To);
+
+                if (i >= 0 && j >= 0)
                 {
-                    sw.WriteLine($"{node.Name}:{node.X},{node.Y}");
+                    MatrixAdj[i, j] = 1;
+                    MatrixAdj[j, i] = 1;
+
+                    MatrixWeight[i, j] = edge.Weight;
+                    MatrixWeight[j, i] = edge.Weight;
                 }
             }
         }
 
+        // ----- INFECTARE (BFS) cu greutăți (vizual, nod cu nod) ----- //
+        // Observație: folosește Thread.Sleep pentru vizual; dacă vrei non-blocking, schimb în async/await.
+        private async Task SpreadInfectionAsync(string start)
+        {
+            if(!adjacencyWeighted.ContainsKey(start))
+            {
+                MessageBox.Show($"Nodul {start} nu există în graf.");
+                return;
+            }
+
+            infected.Clear();
+            Queue<(string node, double time)> q = new Queue<(string node, double time)>();
+            Dictionary<string, double> visitedTime = new Dictionary<string, double>();
+
+            if (!double.TryParse(textBoxT.Text, out double tMax) || tMax <= 0) tMax = 1.0;
+
+            visitedTime[start] = 0;
+            infected.Add(start);
+
+            procentCurentDict[start] = ComputePercentForNode(start);
+            pictureBox1.Invalidate();
+            await Task.Delay(300);
+
+            q.Enqueue((start, 0));
+
+            while (q.Count > 0)
+            {
+                var (current, currentTime) = q.Dequeue();
+
+                foreach (var (neigh, weight) in adjacencyWeighted[current])
+                {
+                    // Timpul necesar pentru a trece virusul prin muchie
+                    double deltaTime = weight * 2.0; // greutăți mai mari → propagare mai lentă
+                    double arrivalTime = currentTime + deltaTime;
+
+                    if (arrivalTime <= tMax && (!visitedTime.ContainsKey(neigh) || arrivalTime < visitedTime[neigh]))
+                    {
+                        visitedTime[neigh] = arrivalTime;
+                        infected.Add(neigh);
+
+                        procentCurentDict[neigh] = ComputePercentForNode(neigh);
+                        pictureBox1.Invalidate();
+                        // Redă sunetul folosind instanța globală
+                        PlayInfectSound();
+
+                        await Task.Delay(2000); // delay vizual
+                        q.Enqueue((neigh, arrivalTime));
+                    }
+                }
+            }
+
+            MessageBox.Show("Infectate: " + string.Join(", ", infected));
+        }
+
+        private void PlayInfectSound()
+        {
+            // Use the UnmanagedMemoryStream directly with SoundPlayer
+            using (UnmanagedMemoryStream stream = Properties.Resources.Infect_Effect)
+            {
+                SoundPlayer player = new SoundPlayer(stream);
+                player.Play(); // Play the sound
+            }
+        }
+
+
+        private async void button4_Click(object sender, EventArgs e)
+        {
+            // dacă vrei să iei start-ul din combobox:
+            string start = "Romania";
+            if (comboBox1.SelectedIndex >= 0)
+                start = comboBox1.SelectedItem.ToString();
+
+            // asigură-te că lista/matricea e construită
+            if (adjacencyWeighted == null || adjacencyWeighted.Count == 0)
+                BuildAdjData();
+
+            await SpreadInfectionAsync(start);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            foreach (var node in nodes)
+            {
+                node.Color = DefaultNodeColor;
+            }
+            pictureBox1.Invalidate();
+        }
+
+        // variabila folosită pentru culoare default
+        private static readonly Color DefaultNodeColor = Color.LightGreen;
     }
-}
 
-// Clase auxiliare
-public class Node
-{
-    public int X { get; set; }
-    public int Y { get; set; }
-    public string Name { get; set; }
-    public int Radius { get; set; }
-
-    public Node(int x, int y, string name, int radius = 20)
+    // ----- Clase auxiliare ----- //
+    public class Node
     {
-        X = x;
-        Y = y;
-        Name = name;
-        Radius = radius;  // Setare corectă
+        public int X { get; set; }
+        public int Y { get; set; }
+        public string Name { get; set; }
+        public int Radius { get; set; }
+        public Color Color { get; set; } = Color.LightGreen; // culoare implicită
+
+        public Node(int x, int y, string name, int radius = 20)
+        {
+            X = x;
+            Y = y;
+            Name = name;
+            Radius = radius;  // Setare corectă
+        }
     }
-}
 
-
-public class Edge
+    public class Edge
     {
         public Node From { get; set; }
         public Node To { get; set; }
+        public int Weight { get; set; } // risc / trafic / rată infectare
 
-        public Edge(Node from, Node to)
+        public Edge(Node from, Node to, int weight)
         {
             From = from;
             To = to;
+            Weight = weight;
         }
     }
+}
