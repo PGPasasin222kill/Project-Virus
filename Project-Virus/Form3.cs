@@ -17,34 +17,10 @@ namespace Project_Virus
             InitializeComponent();
         }
 
-        private void buttonlog_Click(object sender, EventArgs e)
-        {
-            if(textlogin.Text=="Savant")
-            {
-                textlogin.Hide();
-                buttonlog.Hide();
-                buttonback.Visible = true;
-                label1.Hide();
-            }
-            else
-            {
-                MessageBox.Show("Acces interzis!");
-                Form1 form1 = new Form1();
-                form1.Show();
-                this.Hide();
-            }
-        }
-
-        private void buttonback_Click(object sender, EventArgs e)
-        {
-            Form1 form1 = new Form1();
-            form1.Show();
-            this.Hide(); ;
-        }
-
         private void Form3_Load(object sender, EventArgs e)
         {
 
         }
+
     }
 }

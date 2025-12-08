@@ -107,7 +107,7 @@ namespace Project_Virus
             });
 
             // Conectează Paint și evenimente mouse
-            this.Paint += Form2_Paint;
+           // this.Paint += Form2_Paint;
             this.MouseDown += Form2_MouseDown;
             this.MouseMove += Form2_MouseMove;
             this.MouseUp += Form2_MouseUp;
@@ -199,39 +199,7 @@ namespace Project_Virus
         }
 
         // ----- DESENARE FORM (păstrat, dar folosește node.Color) -----
-        private void Form2_Paint(object sender, PaintEventArgs e)
-        {
-            Graphics g = e.Graphics;
-            Pen edgePen = new Pen(Color.Black, 3);
-            Font font = new Font("Arial", 10, FontStyle.Bold);
-
-            // Desenează muchiile
-            foreach (Edge edge in edges)
-            {
-                g.DrawLine(edgePen, edge.From.X, edge.From.Y, edge.To.X, edge.To.Y);
-                // afișare greutate la mijlocul muchiei
-                var mx = (edge.From.X + edge.To.X) / 2;
-                var my = (edge.From.Y + edge.To.Y) / 2;
-                g.DrawString(edge.Weight.ToString(), new Font("Arial", 8), Brushes.DarkBlue, mx, my);
-            }
-
-            int radius = 20;
-            foreach (Node node in nodes)
-            {
-                // Nodul - folosește culoarea nodului
-                using (Brush b = new SolidBrush(node.Color))
-                {
-                    g.FillEllipse(b, node.X - radius, node.Y - radius, radius * 2, radius * 2);
-                }
-                g.DrawEllipse(Pens.Black, node.X - radius, node.Y - radius, radius * 2, radius * 2);
-
-                // Numele nodului deasupra
-                SizeF textSize = g.MeasureString(node.Name, font);
-                float textX = node.X - textSize.Width / 2;
-                float textY = node.Y - radius - textSize.Height - 2;
-                g.DrawString(node.Name, font, Brushes.Black, textX, textY);
-            }
-        }
+       
 
         private Color Lerp(Color a, Color b, double t)
         {
@@ -315,13 +283,13 @@ namespace Project_Virus
             Font font = new Font("Arial", 10, FontStyle.Bold);
 
             // Muchii
-            foreach (Edge edge in edges)
+           /* foreach (Edge edge in edges)
             {
                 g.DrawLine(edgePen, edge.From.X, edge.From.Y, edge.To.X, edge.To.Y);
                 var mx = (edge.From.X + edge.To.X) / 2;
                 var my = (edge.From.Y + edge.To.Y) / 2;
                 g.DrawString(edge.Weight.ToString(), new Font("Arial", 8), Brushes.DarkBlue, mx, my);
-            }
+            }*/
 
             // Noduri
             foreach (Node node in nodes)
@@ -480,6 +448,7 @@ namespace Project_Virus
 
             textBoxProcent.Text = $"{procent1:F2}%";
             procentCurentDict[populatie_tara[indexTara].Nume] = procent1;
+            MessageBox.Show("PROCENTUL DE INFECRARE: " + $"{procent1:F2}%");
             pictureBox1.Invalidate();
         }
 
@@ -582,7 +551,7 @@ namespace Project_Virus
                         // Redă sunetul folosind instanța globală
                         PlayInfectSound();
 
-                        await Task.Delay(2000); // delay vizual
+                        await Task.Delay(1500); // delay vizual
                         q.Enqueue((neigh, arrivalTime));
                     }
                 }
@@ -623,6 +592,32 @@ namespace Project_Virus
                 node.Color = DefaultNodeColor;
             }
             pictureBox1.Invalidate();
+        }
+
+        private void buttonlog_Click(object sender, EventArgs e)
+        {
+            if (textlogin.Text == "Savant")
+            {
+                textlogin.Visible = false;
+                buttonlog.Visible = false;
+                label1.Visible = false;
+                button4.Visible = true;
+            }
+            else
+            {
+                MessageBox.Show("Acces interzis!");
+                textlogin.Visible = false;
+                buttonlog.Visible = false;
+                label1.Visible = false;
+                //button4.Visible = true;
+            }
+        }
+
+        private void buttonstart_Click(object sender, EventArgs e)
+        {
+            textlogin.Visible = true;
+            buttonlog.Visible = true;
+            label1.Visible = true;
         }
 
         // variabila folosită pentru culoare default
