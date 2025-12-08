@@ -50,7 +50,7 @@ namespace Project_Virus
              new TaraStruct { Nume = "Rusia",     Populatie = 80000000, Rezistenta = 0.20 },
              new TaraStruct { Nume = "Turcia",    Populatie = 85000000, Rezistenta = 0.55 },
              new TaraStruct { Nume = "Slovacia",     Populatie = 2450000, Rezistenta = 0.70 },
-             new TaraStruct { Nume = "Slovenia",    Populatie = 8500000, Rezistenta = 0.35 }
+             new TaraStruct { Nume = "Slovenia",    Populatie = 8500000,  Rezistenta = 0.35 }
         };
 
         // Vector de structuri pentru virusuri
@@ -76,7 +76,10 @@ namespace Project_Virus
 
         // procent curent (pentru partea ta deja existentă)
         private Dictionary<string, double> procentCurentDict = new Dictionary<string, double>();
-        private SoundPlayer infectSound;
+
+        // *** NOUTĂȚI ANIMAȚIE / SUNET ***
+        private SoundPlayer infectSound; // preîncarcă sunetul și îl refolosim
+
         public Form2()
         {
             // activează double buffering
@@ -107,7 +110,6 @@ namespace Project_Virus
             });
 
             // Conectează Paint și evenimente mouse
-           // this.Paint += Form2_Paint;
             this.MouseDown += Form2_MouseDown;
             this.MouseMove += Form2_MouseMove;
             this.MouseUp += Form2_MouseUp;
@@ -116,7 +118,51 @@ namespace Project_Virus
             pictureBox1.MouseDown += PictureBox1_MouseDown;
             pictureBox1.MouseMove += PictureBox1_MouseMove;
             pictureBox1.MouseUp += PictureBox1_MouseUp;
-            BuildAdjData();
+
+            // *** NOUTĂȚI: init sunet ***
+            InitSounds();
+
+            // BuildAdjData va fi apelat în Form2_Load după populare noduri/muchii
+            // BuildAdjData();
+        }
+
+        // *** Încarcă sunetul în memorie o singură dată (robust) ***
+        private void InitSounds()
+        {
+            try
+            {
+                using (UnmanagedMemoryStream ums = Properties.Resources.Infect_Effect)
+                {
+                    byte[] buffer = new byte[ums.Length];
+                    ums.Read(buffer, 0, buffer.Length);
+                    infectSound = new SoundPlayer(new MemoryStream(buffer));
+                    infectSound.Load();
+                }
+            }
+            catch
+            {
+                infectSound = null; // dacă nu găsește resursa, silently ignore
+            }
+        }
+
+        // Safe play
+        private void PlayInfectSound()
+        {
+            try
+            {
+                infectSound?.Play();
+            }
+            catch
+            {
+                // ignore errors la redare
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            infectSound?.Stop();
+            infectSound?.Dispose();
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -146,7 +192,6 @@ namespace Project_Virus
             nodes.Add(new Node(539, 34, "Latvia", 10));//21
 
             // Muchii (acum cu GREUTĂȚI). Ajustează greutățile după preferință:
-            // Format: edges.Add(new Edge(nodes[a], nodes[b], weight));
             edges.Add(new Edge(nodes[1], nodes[0], 4));   // BG - RO (trafic moderat)
             edges.Add(new Edge(nodes[2], nodes[0], 6));   // SRB - RO (risc)
             edges.Add(new Edge(nodes[3], nodes[0], 7));   // HUN - RO (trafic intens)
@@ -174,7 +219,7 @@ namespace Project_Virus
             edges.Add(new Edge(nodes[14], nodes[15], 7));
             edges.Add(new Edge(nodes[14], nodes[10], 6));
             edges.Add(new Edge(nodes[14], nodes[12], 5));
-            edges.Add(new Edge(nodes[14], nodes[15], 7));
+            // removed duplicate edge previously present
             edges.Add(new Edge(nodes[16], nodes[2], 3));
             edges.Add(new Edge(nodes[16], nodes[13], 4));
             edges.Add(new Edge(nodes[3], nodes[13], 4));
@@ -199,8 +244,6 @@ namespace Project_Virus
         }
 
         // ----- DESENARE FORM (păstrat, dar folosește node.Color) -----
-       
-
         private Color Lerp(Color a, Color b, double t)
         {
             int r = (int)(a.R + (b.R - a.R) * t);
@@ -209,23 +252,32 @@ namespace Project_Virus
             return Color.FromArgb(r, g, bC);
         }
 
-        private Color GetInfectionColor(double infectie) // infectie între 0 și 1
+        private Color GetInfectionColor(double t) // infectie între 0 și 1
         {
-            infectie = Math.Max(0, Math.Min(1, infectie));
-            double t = Math.Pow(infectie, 2.2);
+            if (t < 0) t = 0;
+            if (t > 1) t = 1;
 
-            if (t <= 0.10)
-                return Lerp(Color.FromArgb(0, 180, 0), Color.FromArgb(120, 200, 0), t / 0.10);
-            if (t <= 0.30)
-                return Lerp(Color.FromArgb(120, 200, 0), Color.FromArgb(255, 255, 0), (t - 0.10) / 0.20);
-            if (t <= 0.60)
-                return Lerp(Color.FromArgb(255, 255, 0), Color.FromArgb(255, 128, 0), (t - 0.30) / 0.30);
-            if (t <= 0.95)
-                return Lerp(Color.FromArgb(255, 128, 0), Color.FromArgb(180, 0, 0), (t - 0.60) / 0.35);
-            if (t < 1.0)
-                return Lerp(Color.FromArgb(180, 0, 0), Color.Black, (t - 0.95) / 0.05);
 
-            return Color.Black;
+            if (t <= 0.05) return Color.FromArgb(0, 180, 0);      // verde închis
+            if (t <= 0.10) return Color.FromArgb(60, 200, 0);     // verde lime
+            if (t <= 0.15) return Color.FromArgb(120, 220, 0);    // galben-verzui
+            if (t <= 0.20) return Color.FromArgb(180, 230, 0);    // galben aprins
+            if (t <= 0.25) return Color.FromArgb(255, 255, 0);    // galben
+            if (t <= 0.30) return Color.FromArgb(255, 200, 0);    // portocaliu deschis
+            if (t <= 0.35) return Color.FromArgb(255, 160, 0);    // portocaliu
+            if (t <= 0.40) return Color.FromArgb(255, 120, 0);    // portocaliu închis
+            if (t <= 0.45) return Color.FromArgb(255, 80, 0);     // roșu-portocaliu
+            if (t <= 0.50) return Color.FromArgb(240, 50, 0);     // roșu aprins
+            if (t <= 0.55) return Color.FromArgb(220, 0, 0);      // roșu intens
+            if (t <= 0.60) return Color.FromArgb(200, 0, 0);      // roșu închis
+            if (t <= 0.65) return Color.FromArgb(180, 0, 20);     // roșu-vinețiu
+            if (t <= 0.70) return Color.FromArgb(160, 0, 40);     // roșu-vinețiu închis
+            if (t <= 0.75) return Color.FromArgb(140, 0, 60);     // vișiniu
+            if (t <= 0.80) return Color.FromArgb(120, 0, 80);     // vișiniu închis
+            if (t <= 0.85) return Color.FromArgb(100, 0, 100);    // mov-roșu
+            if (t <= 0.90) return Color.FromArgb(80, 0, 120);     // mov închis
+            if (t <= 0.95) return Color.FromArgb(40, 0, 160);     // violet închis
+            return Color.Black;                                    // 100%
         }
 
         // ----- MOUSE HANDLING pe form (permite mutare noduri) -----
@@ -282,8 +334,8 @@ namespace Project_Virus
             Pen edgePen = new Pen(Color.Black, 1);
             Font font = new Font("Arial", 10, FontStyle.Bold);
 
-            // Muchii
-           /* foreach (Edge edge in edges)
+            // Draw edges with weights
+            /*foreach (Edge edge in edges)
             {
                 g.DrawLine(edgePen, edge.From.X, edge.From.Y, edge.To.X, edge.To.Y);
                 var mx = (edge.From.X + edge.To.X) / 2;
@@ -506,11 +558,74 @@ namespace Project_Virus
             }
         }
 
-        // ----- INFECTARE (BFS) cu greutăți (vizual, nod cu nod) ----- //
-        // Observație: folosește Thread.Sleep pentru vizual; dacă vrei non-blocking, schimb în async/await.
+        // ============================
+        // *** NOUTĂȚI: ANIMAȚII ***
+        // Particule care se mișcă de la un nod la altul folosind coordonatele din nodes
+        // și explozie (cercuri) la nodul țintă.
+        // ============================
+        private async Task TravelParticlesBetweenNodes(string fromName, string toName)
+        {
+            var fromNode = nodes.Find(n => n.Name == fromName);
+            var toNode = nodes.Find(n => n.Name == toName);
+            if (fromNode == null || toNode == null) return;
+
+            // obținem coordonatele relative la pictureBox (evenimentele mouse foloseau coordonate picturebox)
+            // nodes.X/Y sunt folosite pentru desen direct în pictureBox Paint, deci le putem folosi pe acelea
+            int steps = 30;
+            using (Graphics g = pictureBox1.CreateGraphics())
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                for (int i = 0; i <= steps; i++)
+                {
+                    float t = i / (float)steps;
+                    int x = (int)(fromNode.X + (toNode.X - fromNode.X) * t);
+                    int y = (int)(fromNode.Y + (toNode.Y - fromNode.Y) * t);
+
+                    // desenăm mai multe particule ușoare (mic punct + halo)
+                    int size = 10;
+                    Rectangle rect = new Rectangle(x - size / 2, y - size / 2, size, size);
+                    g.FillEllipse(Brushes.OrangeRed, rect);
+                    await Task.Delay(0);
+
+                    // curățare simplă a particulei prin redrawing pictureBox (Invalidate)
+                    // pentru a evita ștergerea întregului UI prea des, redăm doar baza
+                    pictureBox1.Invalidate(); // repaint permanent (paint va desena muchii/noduri)
+                }
+            }
+        }
+
+        private async Task ExplosionEffectOnNode(string nodeName)
+        {
+            var node = nodes.Find(n => n.Name == nodeName);
+            if (node == null) return;
+
+            int cx = node.X;
+            int cy = node.Y;
+
+            using (Graphics g = pictureBox1.CreateGraphics())
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                for (int r = 10; r <= 60; r += 10)
+                {
+                    using (Pen p = new Pen(Color.FromArgb(200, Color.Red), 3))
+                    {
+                        g.DrawEllipse(p, cx - r, cy - r, r * 2, r * 2);
+                    }
+                    await Task.Delay(80);
+                    pictureBox1.Invalidate();
+                }
+            }
+
+            // marchează nodul colorat persistent (folosește node.Color)
+            //node.Color = Color.DarkRed;
+            pictureBox1.Invalidate();
+        }
+
+        // ----- INFECTARE (BFS) cu greutăți (vizual, nod cu nod) -----
+        // Observație: folosește animații async pentru particule/explozie
         private async Task SpreadInfectionAsync(string start)
         {
-            if(!adjacencyWeighted.ContainsKey(start))
+            if (!adjacencyWeighted.ContainsKey(start))
             {
                 MessageBox.Show($"Nodul {start} nu există în graf.");
                 return;
@@ -531,6 +646,10 @@ namespace Project_Virus
 
             q.Enqueue((start, 0));
 
+            // Prima explozie pe nodul start
+            PlayInfectSound();
+            await ExplosionEffectOnNode(start);
+
             while (q.Count > 0)
             {
                 var (current, currentTime) = q.Dequeue();
@@ -547,11 +666,16 @@ namespace Project_Virus
                         infected.Add(neigh);
 
                         procentCurentDict[neigh] = ComputePercentForNode(neigh);
-                        pictureBox1.Invalidate();
-                        // Redă sunetul folosind instanța globală
-                        PlayInfectSound();
 
-                        await Task.Delay(1500); // delay vizual
+                        // *** animație particule pe muchie între current și neigh ***
+                        await TravelParticlesBetweenNodes(current, neigh);
+
+                        // redăm sunet și explozie la destinație
+                        PlayInfectSound();
+                        await ExplosionEffectOnNode(neigh);
+
+                        pictureBox1.Invalidate();
+                        await Task.Delay(1500); // mic pauză după explozie
                         q.Enqueue((neigh, arrivalTime));
                     }
                 }
@@ -560,18 +684,7 @@ namespace Project_Virus
             MessageBox.Show("Infectate: " + string.Join(", ", infected));
         }
 
-        private void PlayInfectSound()
-        {
-            // Use the UnmanagedMemoryStream directly with SoundPlayer
-            using (UnmanagedMemoryStream stream = Properties.Resources.Infect_Effect)
-            {
-                SoundPlayer player = new SoundPlayer(stream);
-                player.Play(); // Play the sound
-            }
-        }
-
-
-        private async void button4_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e)
         {
             // dacă vrei să iei start-ul din combobox:
             string start = "Romania";
@@ -582,7 +695,8 @@ namespace Project_Virus
             if (adjacencyWeighted == null || adjacencyWeighted.Count == 0)
                 BuildAdjData();
 
-            await SpreadInfectionAsync(start);
+            // notă: folosim async/await deci nu blochează UI
+            var _ = SpreadInfectionAsync(start);
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -591,6 +705,7 @@ namespace Project_Virus
             {
                 node.Color = DefaultNodeColor;
             }
+            procentCurentDict.Clear();
             pictureBox1.Invalidate();
         }
 
