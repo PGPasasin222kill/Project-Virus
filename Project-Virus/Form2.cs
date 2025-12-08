@@ -118,15 +118,10 @@ namespace Project_Virus
             pictureBox1.MouseDown += PictureBox1_MouseDown;
             pictureBox1.MouseMove += PictureBox1_MouseMove;
             pictureBox1.MouseUp += PictureBox1_MouseUp;
-
-            // *** NOUTĂȚI: init sunet ***
             InitSounds();
-
-            // BuildAdjData va fi apelat în Form2_Load după populare noduri/muchii
-            // BuildAdjData();
         }
 
-        // *** Încarcă sunetul în memorie o singură dată (robust) ***
+        // SUNNET loading
         private void InitSounds()
         {
             try
@@ -141,7 +136,7 @@ namespace Project_Virus
             }
             catch
             {
-                infectSound = null; // dacă nu găsește resursa, silently ignore
+                infectSound = null;
             }
         }
 
@@ -154,7 +149,7 @@ namespace Project_Virus
             }
             catch
             {
-                // ignore errors la redare
+                
             }
         }
 
@@ -167,7 +162,7 @@ namespace Project_Virus
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            // Noduri (coordonatele pot fi ajustate)
+            // Noduri 
             nodes.Add(new Node(564, 507, "Romania"));//0
             nodes.Add(new Node(558, 644, "Bulgaria"));//1
             nodes.Add(new Node(436, 571, "Serbia"));//2
@@ -191,13 +186,13 @@ namespace Project_Virus
             nodes.Add(new Node(501, 93, "Lituania", 15));//20
             nodes.Add(new Node(539, 34, "Latvia", 10));//21
 
-            // Muchii (acum cu GREUTĂȚI). Ajustează greutățile după preferință:
+            // Muchii
             edges.Add(new Edge(nodes[1], nodes[0], 4));   // BG - RO (trafic moderat)
             edges.Add(new Edge(nodes[2], nodes[0], 6));   // SRB - RO (risc)
             edges.Add(new Edge(nodes[3], nodes[0], 7));   // HUN - RO (trafic intens)
             edges.Add(new Edge(nodes[4], nodes[0], 3));   // UKR - RO (risc mic)
-            edges.Add(new Edge(nodes[5], nodes[0], 5));   // MD - RO
-            edges.Add(new Edge(nodes[6], nodes[1], 4));   // GRE - BG
+            edges.Add(new Edge(nodes[5], nodes[0], 5));   
+            edges.Add(new Edge(nodes[6], nodes[1], 4));   
             edges.Add(new Edge(nodes[7], nodes[3], 2));
             edges.Add(new Edge(nodes[8], nodes[3], 3));
             edges.Add(new Edge(nodes[9], nodes[7], 5));
@@ -219,7 +214,6 @@ namespace Project_Virus
             edges.Add(new Edge(nodes[14], nodes[15], 7));
             edges.Add(new Edge(nodes[14], nodes[10], 6));
             edges.Add(new Edge(nodes[14], nodes[12], 5));
-            // removed duplicate edge previously present
             edges.Add(new Edge(nodes[16], nodes[2], 3));
             edges.Add(new Edge(nodes[16], nodes[13], 4));
             edges.Add(new Edge(nodes[3], nodes[13], 4));
@@ -615,9 +609,6 @@ namespace Project_Virus
                     pictureBox1.Invalidate();
                 }
             }
-
-            // marchează nodul colorat persistent (folosește node.Color)
-            //node.Color = Color.DarkRed;
             pictureBox1.Invalidate();
         }
 
@@ -646,7 +637,6 @@ namespace Project_Virus
 
             q.Enqueue((start, 0));
 
-            // Prima explozie pe nodul start
             PlayInfectSound();
             await ExplosionEffectOnNode(start);
 
@@ -667,7 +657,6 @@ namespace Project_Virus
 
                         procentCurentDict[neigh] = ComputePercentForNode(neigh);
 
-                        // *** animație particule pe muchie între current și neigh ***
                         await TravelParticlesBetweenNodes(current, neigh);
 
                         // redăm sunet și explozie la destinație
@@ -686,16 +675,11 @@ namespace Project_Virus
 
         private void button4_Click(object sender, EventArgs e)
         {
-            // dacă vrei să iei start-ul din combobox:
             string start = "Romania";
             if (comboBox1.SelectedIndex >= 0)
                 start = comboBox1.SelectedItem.ToString();
-
-            // asigură-te că lista/matricea e construită
             if (adjacencyWeighted == null || adjacencyWeighted.Count == 0)
                 BuildAdjData();
-
-            // notă: folosim async/await deci nu blochează UI
             var _ = SpreadInfectionAsync(start);
         }
 
