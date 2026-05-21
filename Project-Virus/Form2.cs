@@ -309,8 +309,8 @@ namespace Project_Virus
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Form1 form1 = new Form1();
-            form1.Show();
+            Form3 form3 = new Form3();
+            form3.Show();
             this.Hide();
         }
 
@@ -717,6 +717,13 @@ namespace Project_Virus
             textlogin.Visible = true;
             buttonlog.Visible = true;
             label1.Visible = true;
+        }
+
+        private void button5_Click_1(object sender, EventArgs e)
+        {
+            Form3 form3 = new Form3();
+            form3.Show();
+            this.Hide();
         }
 
         // variabila folosită pentru culoare default

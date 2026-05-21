@@ -61,6 +61,46 @@ namespace Project_Virus.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _0_cCE8G1kvBwvvWlMH {
+            get {
+                object obj = ResourceManager.GetObject("0_cCE8G1kvBwvvWlMH", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap coronavirus_1440x900_0 {
+            get {
+                object obj = ResourceManager.GetObject("coronavirus-1440x900_0", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Covid_19_original {
+            get {
+                object obj = ResourceManager.GetObject("Covid-19.original", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Eminescu__1_ {
+            get {
+                object obj = ResourceManager.GetObject("Eminescu (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream Infect_Effect {
@@ -72,9 +112,31 @@ namespace Project_Virus.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap slayer {
+            get {
+                object obj = ResourceManager.GetObject("slayer", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Virus {
             get {
                 object obj = ResourceManager.GetObject("Virus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap virus_pixel_art_pattern_pandemic_digital_wallpaper_with_pixelated_microbes_8_bit_disease_or_infection_cells_retro_game_art_microbiology_seamless_background_illustration_vector {
+            get {
+                object obj = ResourceManager.GetObject("virus-pixel-art-pattern-pandemic-digital-wallpaper-with-pixelated-microbes-8-bit-" +
+                        "disease-or-infection-cells-retro-game-art-microbiology-seamless-background-illus" +
+                        "tration-vector", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
